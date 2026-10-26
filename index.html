@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <meta name="description" content="Taller interactivo de árboles binarios: agenda telefónica y ordenamiento numérico.">
+    <title>Árboles binarios | Taller de estructuras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/script.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Inicio, Árboles binarios">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>estructura<span class="brand-light">.lab</span></span>
+      </a>
+      <span class="course-tag"><span class="status-dot"></span> Estructuras de Datos · Taller</span>
+    </header>
+
+    <main class="page-shell">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="eyebrow"><span class="eyebrow-line"></span> PRÁCTICA INTERACTIVA</div>
+        <h1 id="page-title">Árboles que ponen<br><span>tus datos en orden.</span></h1>
+        <p>Explora cómo un árbol binario de búsqueda organiza información y permite encontrarla con facilidad.</p>
+        <div class="concepts" aria-label="Conceptos del taller">
+          <span><i class="concept-dot blue"></i> Árbol binario de búsqueda</span>
+          <span><i class="concept-dot mint"></i> Recorrido in-order</span>
+        </div>
+      </section>
+
+      <section class="exercise-grid" aria-label="Ejercicios del taller">
+        <article class="exercise-card phone-card">
+          <div class="card-topline">
+            <div class="exercise-icon phone-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M7.3 3.8h9.4a1.7 1.7 0 0 1 1.7 1.7v13a1.7 1.7 0 0 1-1.7 1.7H7.3a1.7 1.7 0 0 1-1.7-1.7v-13a1.7 1.7 0 0 1 1.7-1.7Z" stroke="currentColor" stroke-width="1.7"/><path d="M10 6.8h4M11 17.2h2" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"/></svg>
+            </div>
+            <span class="exercise-number">EJERCICIO 01</span>
+          </div>
+          <h2>Agenda telefónica</h2>
+          <p class="card-description">Cada contacto encuentra su lugar por orden alfabético.</p>
+          <div class="tree-note"><span class="mini-tree" aria-hidden="true"><i></i><i></i><i></i></span><span>Árbol binario de búsqueda</span></div>
+
+          <form id="contact-form" class="form-block">
+            <div class="section-label"><span>Agregar contacto</span><span class="label-rule"></span></div>
+            <label for="contact-name">Nombre</label>
+            <input id="contact-name" name="name" type="text" placeholder="Ej. Laura Martínez" maxlength="80" autocomplete="name" required>
+            <label for="contact-phone">Teléfono</label>
+            <input id="contact-phone" name="phone" type="tel" placeholder="Ej. +57 300 123 4567" maxlength="32" autocomplete="tel" required>
+            <button class="button button-primary" type="submit">Agregar al árbol <span aria-hidden="true">↗</span></button>
+            <p class="feedback" id="contact-feedback" role="status" aria-live="polite"></p>
+          </form>
+
+          <form id="search-form" class="form-block search-block">
+            <div class="section-label"><span>Buscar contacto</span><span class="label-rule"></span></div>
+            <label class="sr-only" for="search-name">Nombre a buscar</label>
+            <div class="search-row">
+              <input id="search-name" name="name" type="search" placeholder="¿A quién buscamos?" maxlength="80" required>
+              <button class="button button-dark" type="submit">Buscar</button>
+            </div>
+            <div id="search-result" class="result-box" role="status" aria-live="polite">El resultado aparecerá aquí.</div>
+          </form>
+          <div class="card-footer"><span class="footer-dot"></span> Los nombres se comparan sin distinguir mayúsculas</div>
+        </article>
+
+        <article class="exercise-card numbers-card">
+          <div class="card-topline">
+            <div class="exercise-icon numbers-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v5m0 0-5 5m5-5 5 5M7 14v5m10-5v5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/><circle cx="12" cy="3.5" r="2" fill="currentColor"/><circle cx="6.5" cy="20" r="2" fill="currentColor"/><circle cx="17.5" cy="20" r="2" fill="currentColor"/></svg>
+            </div>
+            <span class="exercise-number">EJERCICIO 02</span>
+          </div>
+          <h2>Ordenamiento numérico</h2>
+          <p class="card-description">Inserta valores y observa el recorrido in-order de menor a mayor.</p>
+          <div class="tree-note"><span class="mini-tree mini-tree-green" aria-hidden="true"><i></i><i></i><i></i></span><span>Árbol binario · recorrido in-order</span></div>
+
+          <form id="number-form" class="form-block">
+            <div class="section-label"><span>Agregar número</span><span class="label-rule"></span></div>
+            <label for="number-value">Valor numérico</label>
+            <div class="number-row">
+              <input id="number-value" name="value" type="number" step="any" placeholder="Ej. 42" required>
+              <button class="button button-primary" type="submit">Insertar <span aria-hidden="true">↗</span></button>
+            </div>
+            <p class="feedback" id="number-feedback" role="status" aria-live="polite"></p>
+          </form>
+
+          <div class="form-block sorted-block">
+            <div class="section-label"><span>Recorrido in-order</span><span class="label-rule"></span></div>
+            <p class="sorted-hint">Visita: subárbol izquierdo → raíz → subárbol derecho</p>
+            <button id="show-numbers" class="button button-outline" type="button">Mostrar números ordenados <span aria-hidden="true">↓</span></button>
+            <div id="numbers-result" class="numbers-result" role="status" aria-live="polite">
+              <span class="empty-state">Aún no hay números en el árbol.</span>
+            </div>
+          </div>
+          <div class="card-footer"><span class="footer-dot green-dot"></span> Los valores repetidos también se conservan</div>
+        </article>
+      </section>
+
+      <section class="learning-strip" aria-label="Resumen de conceptos">
+        <div class="learning-mark">i</div>
+        <p><strong>¿Qué estás viendo?</strong> En un árbol binario de búsqueda, los valores menores van a la izquierda y los mayores o iguales a la derecha.</p>
+        <span class="learning-tail">RAÍZ · RAMAS · HOJAS</span>
+      </section>
+      <footer class="page-footer"><span>ESTRUCTURAS DE DATOS</span><span>ÁRBOLES BINARIOS <i>·</i> 2026</span></footer>
+    </main>
+  </body>
+</html>
