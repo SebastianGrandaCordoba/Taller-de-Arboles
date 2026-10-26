@@ -18,7 +18,10 @@
         <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
         <span>estructura<span class="brand-light">.lab</span></span>
       </a>
-      <span class="course-tag"><span class="status-dot"></span> Estructuras de Datos · Taller</span>
+      <nav class="course-nav" aria-label="Navegación principal">
+        <a href="#agenda">Agenda</a><a href="#ordenamiento">Árbol numérico</a>
+        <span class="course-tag"><span class="status-dot"></span> Taller interactivo</span>
+      </nav>
     </header>
 
     <main class="page-shell">
@@ -32,8 +35,14 @@
         </div>
       </section>
 
+      <section class="stats-grid" aria-label="Resumen de los árboles">
+        <div class="stat-card"><span class="stat-icon blue-stat">A</span><div><strong id="contact-count">0</strong><span>contactos en la agenda</span></div></div>
+        <div class="stat-card"><span class="stat-icon green-stat">#</span><div><strong id="number-count">0</strong><span>números insertados</span></div></div>
+        <div class="stat-card"><span class="stat-icon amber-stat">↕</span><div><strong id="tree-height">0</strong><span>niveles de altura</span></div></div>
+      </section>
+
       <section class="exercise-grid" aria-label="Ejercicios del taller">
-        <article class="exercise-card phone-card">
+        <article class="exercise-card phone-card" id="agenda">
           <div class="card-topline">
             <div class="exercise-icon phone-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none"><path d="M7.3 3.8h9.4a1.7 1.7 0 0 1 1.7 1.7v13a1.7 1.7 0 0 1-1.7 1.7H7.3a1.7 1.7 0 0 1-1.7-1.7v-13a1.7 1.7 0 0 1 1.7-1.7Z" stroke="currentColor" stroke-width="1.7"/><path d="M10 6.8h4M11 17.2h2" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"/></svg>
@@ -50,7 +59,7 @@
             <input id="contact-name" name="name" type="text" placeholder="Ej. Laura Martínez" maxlength="80" autocomplete="name" required>
             <label for="contact-phone">Teléfono</label>
             <input id="contact-phone" name="phone" type="tel" placeholder="Ej. +57 300 123 4567" maxlength="32" autocomplete="tel" required>
-            <button class="button button-primary" type="submit">Agregar al árbol <span aria-hidden="true">↗</span></button>
+            <div class="form-actions"><button id="contact-submit" class="button button-primary" type="submit">Agregar al árbol <span aria-hidden="true">↗</span></button><button id="cancel-edit" class="button button-muted hidden" type="button">Cancelar edición</button></div>
             <p class="feedback" id="contact-feedback" role="status" aria-live="polite"></p>
           </form>
 
@@ -63,10 +72,16 @@
             </div>
             <div id="search-result" class="result-box" role="status" aria-live="polite">El resultado aparecerá aquí.</div>
           </form>
+          <section class="contact-directory" aria-labelledby="directory-title">
+            <div class="directory-heading"><div class="section-label"><span id="directory-title">Contactos guardados</span><span class="label-rule"></span></div><button id="clear-contacts" class="text-button" type="button">Vaciar</button></div>
+            <label class="sr-only" for="contact-filter">Filtrar contactos</label>
+            <input id="contact-filter" type="search" placeholder="Filtrar por nombre o teléfono…" autocomplete="off">
+            <div id="contact-list" class="contact-list" aria-live="polite"><p class="list-empty">Cargando contactos…</p></div>
+          </section>
           <div class="card-footer"><span class="footer-dot"></span> Los nombres se comparan sin distinguir mayúsculas</div>
         </article>
 
-        <article class="exercise-card numbers-card">
+        <article class="exercise-card numbers-card" id="ordenamiento">
           <div class="card-topline">
             <div class="exercise-icon numbers-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v5m0 0-5 5m5-5 5 5M7 14v5m10-5v5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/><circle cx="12" cy="3.5" r="2" fill="currentColor"/><circle cx="6.5" cy="20" r="2" fill="currentColor"/><circle cx="17.5" cy="20" r="2" fill="currentColor"/></svg>
@@ -87,6 +102,14 @@
             <p class="feedback" id="number-feedback" role="status" aria-live="polite"></p>
           </form>
 
+          <form id="batch-form" class="form-block batch-block">
+            <div class="section-label"><span>Carga rápida</span><span class="label-rule"></span></div>
+            <label for="batch-values">Separa los valores con comas o espacios</label>
+            <div class="batch-row"><input id="batch-values" type="text" placeholder="12, 5, 20, 8" autocomplete="off"><button class="button button-secondary" type="submit">Agregar lote</button></div>
+            <div class="quick-actions"><button id="random-values" class="text-button" type="button">+ 5 números aleatorios</button><button id="clear-numbers" class="text-button danger-text" type="button">Vaciar árbol</button></div>
+            <p id="batch-feedback" class="feedback" role="status" aria-live="polite"></p>
+          </form>
+
           <div class="form-block sorted-block">
             <div class="section-label"><span>Recorrido in-order</span><span class="label-rule"></span></div>
             <p class="sorted-hint">Visita: subárbol izquierdo → raíz → subárbol derecho</p>
@@ -94,6 +117,13 @@
             <div id="numbers-result" class="numbers-result" role="status" aria-live="polite">
               <span class="empty-state">Aún no hay números en el árbol.</span>
             </div>
+            <div class="result-actions"><button id="copy-sorted" class="text-button" type="button">Copiar recorrido</button><span id="copy-feedback" class="copy-feedback" role="status" aria-live="polite"></span></div>
+          </div>
+          <div class="form-block tree-visual-block">
+            <div class="section-label"><span>Vista de la estructura</span><span class="label-rule"></span></div>
+            <p class="sorted-hint">Raíz, ramas y hojas tal como quedaron insertadas</p>
+            <div id="tree-visual" class="tree-visual" role="img" aria-label="Visualización del árbol numérico"><span class="empty-state">Agrega valores para ver el árbol.</span></div>
+            <div class="tree-legend"><span><i class="legend-root"></i> Raíz</span><span><i class="legend-node"></i> Nodo</span><span><i class="legend-leaf"></i> Hoja</span></div>
           </div>
           <div class="card-footer"><span class="footer-dot green-dot"></span> Los valores repetidos también se conservan</div>
         </article>

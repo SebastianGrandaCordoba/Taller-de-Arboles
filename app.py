@@ -56,6 +56,48 @@ class Phonebook:
             current = current.left if key < current_key else current.right
         return None
 
+    def contacts(self) -> list[dict[str, str]]:
+        result: list[dict[str, str]] = []
+        stack: list[Node] = []
+        current = self.root
+        while current is not None or stack:
+            while current is not None:
+                stack.append(current)
+                current = current.left
+            current = stack.pop()
+            result.append({"name": current.name, "phone": current.phone})
+            current = current.right
+        return result
+
+    def delete(self, name: str) -> bool:
+        key = name.casefold()
+        parent: Node | None = None
+        current = self.root
+        while current is not None and current.name.casefold() != key:
+            parent = current
+            current = current.left if key < current.name.casefold() else current.right
+        if current is None:
+            return False
+
+        if current.left is not None and current.right is not None:
+            successor_parent = current
+            successor = current.right
+            while successor.left is not None:
+                successor_parent = successor
+                successor = successor.left
+            current.name, current.phone = successor.name, successor.phone
+            parent = successor_parent
+            current = successor
+
+        child = current.left if current.left is not None else current.right
+        if parent is None:
+            self.root = child
+        elif parent.left is current:
+            parent.left = child
+        else:
+            parent.right = child
+        return True
+
 
 class NumericNode:
     def __init__(self, value: int | float) -> None:
@@ -98,6 +140,39 @@ class BinaryTree:
             values.append(current.value)
             current = current.right
         return values
+
+    def structure(self) -> dict | None:
+        if self.root is None:
+            return None
+        return self._serialize(self.root)
+
+    def _serialize(self, node: NumericNode | None) -> dict | None:
+        if node is None:
+            return None
+        return {
+            "value": node.value,
+            "left": self._serialize(node.left),
+            "right": self._serialize(node.right),
+        }
+
+    def metrics(self) -> dict[str, int]:
+        if self.root is None:
+            return {"count": 0, "height": 0, "leaves": 0}
+        count = 0
+        leaves = 0
+        height = 0
+        stack = [(self.root, 1)]
+        while stack:
+            node, depth = stack.pop()
+            count += 1
+            height = max(height, depth)
+            if node.left is None and node.right is None:
+                leaves += 1
+            if node.left is not None:
+                stack.append((node.left, depth + 1))
+            if node.right is not None:
+                stack.append((node.right, depth + 1))
+        return {"count": count, "height": height, "leaves": leaves}
 
 
 phonebook = Phonebook()
@@ -145,6 +220,59 @@ def search_contact():
         return jsonify(found=True, name=contact.name, phone=contact.phone)
 
 
+@app.get("/api/phonebook/contacts")
+def list_contacts():
+    with state_lock:
+        contacts = phonebook.contacts()
+    return jsonify(contacts=contacts, count=len(contacts))
+
+
+@app.put("/api/phonebook/update")
+def update_contact():
+    payload = request.get_json(silent=True) or {}
+    old_name = payload.get("old_name")
+    name = payload.get("name")
+    phone = payload.get("phone")
+    if not isinstance(old_name, str) or not old_name.strip():
+        return jsonify(error="No se indicó el contacto que deseas editar."), 400
+    if not isinstance(name, str) or not name.strip():
+        return jsonify(error="Ingresa un nombre válido."), 400
+    if not isinstance(phone, str) or not phone.strip():
+        return jsonify(error="Ingresa un teléfono válido."), 400
+
+    old_name = old_name.strip()
+    clean_name = name.strip()
+    with state_lock:
+        if phonebook.search(old_name) is None:
+            return jsonify(error="El contacto que intentas editar ya no existe."), 404
+        existing = phonebook.search(clean_name)
+        if existing is not None and existing.name.casefold() != old_name.casefold():
+            return jsonify(error="Ya existe otro contacto con ese nombre."), 409
+        phonebook.delete(old_name)
+        phonebook.insert(clean_name, phone.strip())
+    return jsonify(message="Contacto actualizado en el árbol.", name=clean_name)
+
+
+@app.delete("/api/phonebook/delete")
+def delete_contact():
+    name = request.args.get("name", "").strip()
+    if not name:
+        return jsonify(error="Indica el nombre del contacto que deseas eliminar."), 400
+    with state_lock:
+        deleted = phonebook.delete(name)
+        count = len(phonebook.contacts())
+    if not deleted:
+        return jsonify(error="No se encontró ese contacto."), 404
+    return jsonify(message=f"Se eliminó a {name}.", count=count)
+
+
+@app.delete("/api/phonebook/clear")
+def clear_phonebook():
+    with state_lock:
+        phonebook.root = None
+    return jsonify(message="La agenda quedó vacía.")
+
+
 @app.post("/api/tree/add")
 def add_number():
     payload = request.get_json(silent=True) or {}
@@ -155,8 +283,25 @@ def add_number():
         return jsonify(error="El valor debe ser un número finito."), 400
     with state_lock:
         numeric_tree.add(value)
-        count = len(numeric_tree.inorder())
-    return jsonify(message="Número agregado al árbol.", value=value, count=count), 200
+        metrics = numeric_tree.metrics()
+    return jsonify(message="Número agregado al árbol.", value=value, **metrics), 200
+
+
+@app.post("/api/tree/add-batch")
+def add_numbers():
+    payload = request.get_json(silent=True) or {}
+    values = payload.get("values")
+    if not isinstance(values, list) or not values or len(values) > 100:
+        return jsonify(error="Envía una lista de entre 1 y 100 números."), 400
+    if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in values):
+        return jsonify(error="Todos los valores deben ser números."), 400
+    if any(isinstance(value, float) and not math.isfinite(value) for value in values):
+        return jsonify(error="Todos los valores deben ser finitos."), 400
+    with state_lock:
+        for value in values:
+            numeric_tree.add(value)
+        metrics = numeric_tree.metrics()
+    return jsonify(message=f"Se agregaron {len(values)} números.", **metrics), 200
 
 
 @app.get("/api/tree/inorder")
@@ -164,6 +309,21 @@ def get_inorder():
     with state_lock:
         values = numeric_tree.inorder()
     return jsonify(values=values)
+
+
+@app.get("/api/tree/state")
+def get_tree_state():
+    with state_lock:
+        structure = numeric_tree.structure()
+        metrics = numeric_tree.metrics()
+    return jsonify(root=structure, **metrics)
+
+
+@app.delete("/api/tree/clear")
+def clear_tree():
+    with state_lock:
+        numeric_tree.root = None
+    return jsonify(message="El árbol numérico quedó vacío.", count=0, height=0, leaves=0)
 
 
 if __name__ == "__main__":
